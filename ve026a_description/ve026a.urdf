@@ -236,8 +236,10 @@
 	<joint name="joint_6" type="revolute">
 		<parent link="J5"/>
 		<child link="J6"/>
-		<origin rpy="0.000000 0.000000 0.000000" xyz="0.000000 0.000000 -0.320000"/>
-		<axis xyz="0.000000 0.000000 0.000000"/>
+		<!--origin rpy="0.000000 0.000000 0.000000" xyz="0.000000 0.000000 -0.320000"/--> <!-- wincaps3's bag? -->
+		<origin rpy="0.000000 0.000000 0.000000" xyz="0.000000 0.000000 0.088"/> <!-- End effector tip position -->
+		<!--axis xyz="0.000000 0.000000 0.000000"/-->
+		<axis xyz="0.000000 0.000000 1.000000"/>
 		<limit effort="1" lower="-2.443461" upper="2.443461" velocity="1"/>
 		<dynamics damping="0" friction="0"/>
 	</joint>
