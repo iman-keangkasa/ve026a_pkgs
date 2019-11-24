@@ -22,9 +22,9 @@ unsigned int G_h_joint_angle_variable;
 
 void abort_m(BCAP_HRESULT hr)
 {
-  printf("BCAP_HRESULT %x\n", hr);
   if (FAILED(hr))
   {
+    printf("BCAP_HRESULT %x\n", hr);
     cout << "abort!" << endl;
     abort();
   }
@@ -88,7 +88,7 @@ void jsCallback(const sensor_msgs::JointState::ConstPtr& msg)
     {
       string name = msg->name[i];
       int idx = joint_to_num.at(name);
-      command_angle[idx] = msg->position[i];
+      command_angle[idx] = msg->position[i]*180/M_PI; // degree
     }
     auto  hr = bcap->RobotExecute2(G_h_robot, "slvMode", VT_R4 | VT_ARRAY, 7, command_angle, command_result);
     abort_m(hr);
@@ -140,6 +140,7 @@ int main(int argc, char **argv)
   }
 
   ROS_INFO("Start to subscribe joint state");
+  turnOnMotor(true, G_h_robot);
   ros::Subscriber js_sub = nh.subscribe("joint_states", 10, jsCallback);
 
   // For shutdown of arm
