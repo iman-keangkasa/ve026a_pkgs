@@ -9,6 +9,7 @@ add_compile_options(-std=c++11)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
     roscpp
+    sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -137,7 +138,8 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/connection_test_node.cpp)
+add_executable(connection_test_node src/connection_test_node.cpp)
+add_executable(simple_driver_node src/simple_driver_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -147,10 +149,16 @@ add_executable(${PROJECT_NAME}_node src/connection_test_node.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(connection_test_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(simple_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node
+target_link_libraries(connection_test_node
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${PROJECT_NAME}
+)
+target_link_libraries(simple_driver_node
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
   ${PROJECT_NAME}
