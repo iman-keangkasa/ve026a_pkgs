@@ -70,3 +70,6 @@ Session.vim
 tags
 ## Persistent undo
 [._]*.un~
+
+# YCM
+compile_commands.json
