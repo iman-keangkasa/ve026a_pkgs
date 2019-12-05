@@ -10,6 +10,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
+
 using namespace std;
 
 boost::shared_ptr<BCapSerial> bcap;
@@ -19,6 +20,40 @@ boost::mutex G_control_mutex;
 unsigned int G_h_controller; //this will be the address of the controller
 unsigned int G_h_robot; //this will be the address of the robot
 unsigned int G_h_joint_angle_variable; //this will be the address of joint_angle
+
+void degree2rad(vector<double>& degrees)
+{
+  for(unsigned i = 0; i<degrees.size(); i++)
+  {
+    degrees[i] = degrees[i]*M_PI/180;
+  }
+}
+
+void set_initial_position(vector<float> initial_angle, ros::NodeHandle& nh_param)
+{
+  map <string, float> joint_zeros;
+  vector <string> joint_names;
+  unsigned iterator;
+
+  if( nh_param.hasParam("zeros"))
+  {
+    nh_param.getParam("zeros", joint_zeros);
+    for (map<string,float>::iterator element = joint_zeros.begin(); 
+          element != joint_zeros.end(); 
+            element++) //iterating through a map
+    {
+      joint_names.push_back(element->first);
+    }
+
+    for (iterator = 0; iterator < joint_names.size(); ++iterator)
+    {
+      cout<< joint_names[iterator] <<": "<<initial_angle[iterator]*M_PI/180<<" RAD"<<endl;
+      joint_zeros[ joint_names[iterator] ] = initial_angle[iterator]*M_PI/180;
+    }
+
+    nh_param.setParam("zeros",joint_zeros);
+  }
+}
 
 void abort_m(BCAP_HRESULT hr)
 {
@@ -40,9 +75,9 @@ void turnOnMotor(bool on, unsigned int& h_robot)
 }
 
 // Return position angle as degree
-void getJointFeedback(vector<float>& joint_angle, unsigned int& h_joint_angle_variable)
+void getJointFeedback(vector<float>& joint_angle, unsigned int& h_joint_angle_variable,int a_size)
 {
-  if (joint_angle.size() != 8) joint_angle.resize(8);
+  if (joint_angle.size() != a_size) joint_angle.resize(a_size);
   BCAP_HRESULT hr;
   boost::unique_lock<boost::mutex> lock(G_control_mutex);
   hr = bcap->VariableGetValue(h_joint_angle_variable, joint_angle.data());
@@ -78,6 +113,7 @@ void jsCallback(const sensor_msgs::JointState::ConstPtr& msg)
   joint_to_num.insert(make_pair("joint_4", 3));
   joint_to_num.insert(make_pair("joint_5", 4));
   joint_to_num.insert(make_pair("joint_6", 5));
+  joint_to_num.insert(make_pair("joint_7", 6));
 
   float command_angle[7] = {0, 0, 0, 0, 0, 0, 0};
   float command_result[7];
@@ -104,7 +140,7 @@ void jsCallback(const sensor_msgs::JointState::ConstPtr& msg)
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "ve026a_simple_driver_node");
+  ros::init(argc, argv, "ve026a_states_publisher");
   ros::NodeHandle nh;
 
   string port;
@@ -132,21 +168,67 @@ int main(int argc, char **argv)
   hr = bcap->RobotGetVariable(G_h_robot, "@CURRENT_ANGLE", "", &G_h_joint_angle_variable);
   abort_m(hr);
 
-  vector<float> joint_angle;
-  getJointFeedback(joint_angle, G_h_joint_angle_variable);
-  int count = 0;
-  for (auto&& var : joint_angle) {
-    cout << count << ", " << var << "[deg]" << endl;
+  //vector<float> joint_angle;
+  //getJointFeedback(joint_angle, G_h_joint_angle_variable);
+  
+//  int count = 0; 
+//  for (auto&& var : joint_angle) {
+//    cout << count << ", " << var << "[deg]" << endl;
+//  }
+  
+  //set_initial_position(joint_angle, nh);
+
+  //shutdown(G_h_robot, G_h_controller);
+
+  ROS_INFO("Start to publish joint state");
+//  turnOnMotor(true, G_h_robot);
+  ros::Publisher js_pub = nh.advertise <sensor_msgs::JointState> ("joint_states", 100);
+  
+  vector <string> joint_list;
+  vector <float> joint_angles;
+  map <string,float> joints;
+  
+  //get number of joints
+  if(nh.hasParam("zeros"))
+  {
+    nh.getParam("zeros",joints);
+    for(map<string,float>::iterator it=joints.begin(); it != joints.end(); it++)
+    {
+      joint_list.push_back(it->first);
+    }
+    if(joint_list.size() != joint_angles.size())
+    {
+      joint_angles.resize(joint_list.size());
+    }
   }
+  ros::Rate loop_rate(10);
+  
 
-  ROS_INFO("Start to subscribe joint state");
-  turnOnMotor(true, G_h_robot);
-  ros::Subscriber js_sub = nh.subscribe("joint_states", 10, jsCallback);
+  while(ros::ok())
+  {
+    getJointFeedback( joint_angles, G_h_joint_angle_variable, joint_list.size() );
+    vector<double> joint_angles2(joint_angles.begin(),joint_angles.end());
+    
+    degree2rad(joint_angles2); 
 
+    sensor_msgs::JointState msg;
+    msg.header.stamp = ros::Time::now();
+    //msg.header.frame_id = "base_link";
+    msg.name = joint_list;
+    msg.position = joint_angles2; 
+
+    
+    
+
+    
+    
+    js_pub.publish(msg);
+    loop_rate.sleep();
+  }
   // For shutdown of arm
-  signal(SIGINT, sigintHandler);
-
-  ros::spin();
+  //signal(SIGINT, sigintHandler);
+  shutdown(G_h_robot,G_h_controller);
+  
 
   return 0;
 }

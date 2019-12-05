@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: ve026a_description
+    relative_path: urdf/ve026a_iman2.urdf
+    xacro_args: "--inorder "
+  SRDF:
+    relative_path: config/ve026a.srdf
+  CONFIG:
+    author_name: iman
+    author_email: hafiz.ghazman@gmail.com
+    generated_timestamp: 1575379148

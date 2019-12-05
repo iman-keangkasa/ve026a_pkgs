@@ -10,6 +10,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
+
 using namespace std;
 
 boost::shared_ptr<BCapSerial> bcap;
@@ -19,6 +20,32 @@ boost::mutex G_control_mutex;
 unsigned int G_h_controller; //this will be the address of the controller
 unsigned int G_h_robot; //this will be the address of the robot
 unsigned int G_h_joint_angle_variable; //this will be the address of joint_angle
+
+void set_initial_position(vector<float> initial_angle, ros::NodeHandle& nh_param)
+{
+  map <string, float> joint_zeros;
+  vector <string> joint_names;
+  unsigned iterator;
+
+  if( nh_param.hasParam("zeros"))
+  {
+    nh_param.getParam("zeros", joint_zeros);
+    for (map<string,float>::iterator element = joint_zeros.begin(); 
+          element != joint_zeros.end(); 
+            element++) //iterating through a map
+    {
+      joint_names.push_back(element->first);
+    }
+
+    for (iterator = 0; iterator < joint_names.size(); ++iterator)
+    {
+      cout<< joint_names[iterator] <<": "<<initial_angle[iterator]*M_PI/180<<" RAD"<<endl;
+      joint_zeros[ joint_names[iterator] ] = initial_angle[iterator]*M_PI/180;
+    }
+
+    nh_param.setParam("zeros",joint_zeros);
+  }
+}
 
 void abort_m(BCAP_HRESULT hr)
 {
@@ -78,6 +105,7 @@ void jsCallback(const sensor_msgs::JointState::ConstPtr& msg)
   joint_to_num.insert(make_pair("joint_4", 3));
   joint_to_num.insert(make_pair("joint_5", 4));
   joint_to_num.insert(make_pair("joint_6", 5));
+  joint_to_num.insert(make_pair("joint_7", 6));
 
   float command_angle[7] = {0, 0, 0, 0, 0, 0, 0};
   float command_result[7];
@@ -104,7 +132,7 @@ void jsCallback(const sensor_msgs::JointState::ConstPtr& msg)
 
 int main(int argc, char **argv)
 {
-  ros::init(argc, argv, "ve026a_simple_driver_node");
+  ros::init(argc, argv, "veo26a_safe_startup_node");
   ros::NodeHandle nh;
 
   string port;
@@ -134,10 +162,15 @@ int main(int argc, char **argv)
 
   vector<float> joint_angle;
   getJointFeedback(joint_angle, G_h_joint_angle_variable);
-  int count = 0;
+  
+  int count = 0; 
   for (auto&& var : joint_angle) {
     cout << count << ", " << var << "[deg]" << endl;
   }
+  
+  set_initial_position(joint_angle, nh);
+
+  //shutdown(G_h_robot, G_h_controller);
 
   ROS_INFO("Start to subscribe joint state");
   turnOnMotor(true, G_h_robot);

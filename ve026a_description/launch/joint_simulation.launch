@@ -1,5 +1,11 @@
 <launch>
-  <param name="robot_description" textfile="$(find ve026a_description)/ve026a.urdf"/>
+  <param name="robot_description" textfile="$(find ve026a_description)/urdf/ve026a_iman2.urdf"/>
+
+  <!--To make sure that the robot does not jump from its initial position before
+       startup and during start up load the joints_zeros.yaml which contains 
+       the resources of the robots -->
+  <rosparam command="load" file="$(find ve026a_driver)/config/joints_zeros.yaml" />
+  <node name="ve026a_safe_startup_node" pkg="ve026a_driver" type="ve026a_safe_startup_node" output="screen"/>
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="use_gui" value="true" />
   </node>

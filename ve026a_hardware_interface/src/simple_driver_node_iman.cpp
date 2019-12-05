@@ -10,15 +10,33 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
+#include <string>
+#include <iostream>
+#include <map>
 using namespace std;
 
 boost::shared_ptr<BCapSerial> bcap;
 boost::mutex G_control_mutex;
 
 // handler
-unsigned int G_h_controller; //this will be the address of the controller
-unsigned int G_h_robot; //this will be the address of the robot
-unsigned int G_h_joint_angle_variable; //this will be the address of joint_angle
+unsigned int G_h_controller; //this will be the address of the controller?
+unsigned int G_h_robot; //this will be the address of the robot?
+unsigned int G_h_joint_angle_variable; //this will be the address of joint_angle?
+/*
+
+void setting_initial_position(vector<float>& joint_angle, ros::NodeHandle &nh_param)
+{
+  map <string, float> joints_zeros;
+  if (nh_param.hasParam("zeros"))
+  {
+    nh_param.getParam("zeros", joints_zero);
+    //change the parameter
+    for(
+
+
+
+}
+*/
 
 void abort_m(BCAP_HRESULT hr)
 {
@@ -78,6 +96,7 @@ void jsCallback(const sensor_msgs::JointState::ConstPtr& msg)
   joint_to_num.insert(make_pair("joint_4", 3));
   joint_to_num.insert(make_pair("joint_5", 4));
   joint_to_num.insert(make_pair("joint_6", 5));
+  joint_to_num.insert(make_pair("joint_7", 6));
 
   float command_angle[7] = {0, 0, 0, 0, 0, 0, 0};
   float command_result[7];
@@ -96,7 +115,7 @@ void jsCallback(const sensor_msgs::JointState::ConstPtr& msg)
   catch(out_of_range e)
   {
     ROS_ERROR("Received inproper jointstate");
-    ROS_ERROR("Must send position for joint_1, ... , joint_6");
+    ROS_ERROR("Must send position for joint_1, ... , joint_7");
     return;
   }
 }
@@ -133,11 +152,19 @@ int main(int argc, char **argv)
   abort_m(hr);
 
   vector<float> joint_angle;
+
+  //START setting initial state here so that the robot starts from current state
   getJointFeedback(joint_angle, G_h_joint_angle_variable);
   int count = 0;
   for (auto&& var : joint_angle) {
     cout << count << ", " << var << "[deg]" << endl;
   }
+  
+  //create joint_state message template
+  //sensor_msgs::JointState msg_current_position;
+  
+
+
 
   ROS_INFO("Start to subscribe joint state");
   turnOnMotor(true, G_h_robot);

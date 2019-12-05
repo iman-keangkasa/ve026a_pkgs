@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ve026a_driver)
+project(ve026a_path_planning_moveit)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -7,16 +7,34 @@ add_compile_options(-std=c++11)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(Eigen3 REQUIRED)
+
+if(NOT EIGEN3_INCLUDE_DIRS)
+  set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
+endif()
+
+find_package(Boost REQUIRED system filesystem date_time thread)
+
+
 find_package(catkin REQUIRED COMPONENTS
-    roscpp
-    sensor_msgs
+  geometric_shapes
+  interactive_markers
+  moveit_core
+  moveit_ros_perception
+  moveit_ros_planning_interface
+  moveit_visual_tools
+  pcl_conversions
+  pcl_ros
+  pluginlib
+  roscpp
+  geometry_msgs
+  moveit_msgs
 )
 
+
+
 ## System dependencies are found with CMake's conventions
-find_package(Boost REQUIRED COMPONENTS
-    system
-    thread
-)
+# find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -106,9 +124,9 @@ find_package(Boost REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ve026a_driver
-#  CATKIN_DEPENDS other_catkin_pkg
-#  DEPENDS system_lib
+  LIBRARIES ve026a_path_planning_moveit
+  CATKIN_DEPENDS geometric_shapes interactive_markers moveit_core moveit_ros_perception moveit_ros_planning_interface moveit_visual_tools pcl_conversions geometry_msgs moveit_msgs pcl_ros pluginlib roscpp rospy
+  DEPENDS EIGEN3
 )
 
 ###########
@@ -117,34 +135,28 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
+include_directories(SYSTEM ${Boost_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIRS})
 include_directories(
-  include
+# include
   ${catkin_INCLUDE_DIRS}
 )
-
+link_directories(${catkin_LIBRARY_DIRS})
 ## Declare a C++ library
-add_library(${PROJECT_NAME}
-  src/${PROJECT_NAME}/bcap/bcap_base.cpp
-  src/${PROJECT_NAME}/bcap/bcap_net.cpp
-  src/${PROJECT_NAME}/bcap/bcap_serial.cpp
-  src/${PROJECT_NAME}/bcap/crc16.cpp
- )
+# add_library(${PROJECT_NAME}
+#   src/${PROJECT_NAME}/ve026a_path_planning_moveit.cpp
+# )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(connection_test_node src/connection_test_node.cpp)
-add_executable(simple_driver_node src/simple_driver_node.cpp)
-add_executable(ve026a_safe_startup_node src/ve026a_safe_startup.cpp)
-add_executable(ve026a_states_publisher src/ve026a_states_publisher)
-
-## Iman: Delete this when I am going to implement robotHW interface
-##add_executable(simple_driver_node_iman src/simple_driver_node_iman.cpp)
+# add_executable(${PROJECT_NAME}_node src/ve026a_path_planning_moveit_node.cpp)
+add_executable(ve026a_move_group_node src/ve026a_move_group.cpp)
+add_executable(ve026a_fik_node src/ve026a_fik.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,37 +166,14 @@ add_executable(ve026a_states_publisher src/ve026a_states_publisher)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(connection_test_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(simple_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(ve026a_safe_startup_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(ve026a_states_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-#Iman: delete this codes when I implement robotHW
-##add_dependencies(simple_driver_node_iman ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(connection_test_node
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-  ${PROJECT_NAME}
-)
-target_link_libraries(simple_driver_node
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-  ${PROJECT_NAME}
-)
-
-target_link_libraries(ve026a_safe_startup_node
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-  ${PROJECT_NAME}
-)
-
-target_link_libraries(ve026a_states_publisher
-  ${catkin_LIBRARIES}
-  ${Boost_LIBRARIES}
-  ${PROJECT_NAME}
-)
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${catkin_LIBRARIES}
+# )
+target_link_libraries(ve026a_move_group_node ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(ve026a_fik_node ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 #############
 ## Install ##
 #############
@@ -232,7 +221,7 @@ target_link_libraries(ve026a_states_publisher
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_ve026a_driver.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_ve026a_path_planning_moveit.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

@@ -1,22 +1,23 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ve026a_driver)
+project(ve026a_hardware_interface)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+# add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-    roscpp
-    sensor_msgs
+  roscpp
+  sensor_msgs
 )
 
-## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS
-    system
-    thread
+  system
+  thread
 )
+## System dependencies are found with CMake's conventions
+# find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -72,7 +73,7 @@ find_package(Boost REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
+#   sensor_msgs
 # )
 
 ################################################
@@ -106,8 +107,8 @@ find_package(Boost REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES ve026a_driver
-#  CATKIN_DEPENDS other_catkin_pkg
+  LIBRARIES ve026a_hardware_interface
+#  CATKIN_DEPENDS roscpp sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -118,17 +119,19 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
+# include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}
-  src/${PROJECT_NAME}/bcap/bcap_base.cpp
-  src/${PROJECT_NAME}/bcap/bcap_net.cpp
-  src/${PROJECT_NAME}/bcap/bcap_serial.cpp
-  src/${PROJECT_NAME}/bcap/crc16.cpp
- )
+   src/${PROJECT_NAME}/bcap/bcap_base.cpp
+   src/${PROJECT_NAME}/bcap/bcap_net.cpp
+   src/${PROJECT_NAME}/bcap/bcap_serial.cpp
+   src/${PROJECT_NAME}/bcap/crc16.cpp
+
+)
+
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -138,13 +141,12 @@ add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EX
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
+# add_executable(${PROJECT_NAME}_node src/ve026a_hardware_interface_node.cpp)
 add_executable(connection_test_node src/connection_test_node.cpp)
 add_executable(simple_driver_node src/simple_driver_node.cpp)
 add_executable(ve026a_safe_startup_node src/ve026a_safe_startup.cpp)
 add_executable(ve026a_states_publisher src/ve026a_states_publisher)
 
-## Iman: Delete this when I am going to implement robotHW interface
-##add_executable(simple_driver_node_iman src/simple_driver_node_iman.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,15 +156,19 @@ add_executable(ve026a_states_publisher src/ve026a_states_publisher)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
+# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(connection_test_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(simple_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(ve026a_safe_startup_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(ve026a_states_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-#Iman: delete this codes when I implement robotHW
-##add_dependencies(simple_driver_node_iman ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
+# target_link_libraries(${PROJECT_NAME}_node
+#   ${catkin_LIBRARIES}
+# )
+
+############nk_libraries(connection_test_node
 target_link_libraries(connection_test_node
   ${catkin_LIBRARIES}
   ${Boost_LIBRARIES}
@@ -185,7 +191,8 @@ target_link_libraries(ve026a_states_publisher
   ${Boost_LIBRARIES}
   ${PROJECT_NAME}
 )
-#############
+
+#
 ## Install ##
 #############
 
@@ -232,7 +239,7 @@ target_link_libraries(ve026a_states_publisher
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_ve026a_driver.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_ve026a_hardware_interface.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
