@@ -1,0 +1,95 @@
+#ve026a:
+  joint_limits:
+    joint_1:
+      has_position_limits: true
+      min_position: -1.396263
+      max_position: 1.832596
+      has_velocity_limits: true
+      max_velocity: 3.143 #PI/sec
+      has_acceleration_limits: false
+      max_acceleration: 0.0
+      has_jerk_limits: true
+      max_jerk: 0.1
+      has_effort_limits: true
+      max_effort: 1
+      min_effort: -1.0
+    joint_2:
+      has_position_limits: true
+      min_position: -0.6108625
+      max_position: 1.570796
+      has_velocity_limits: true
+      max_velocity: 3.143 #PI/sec
+      has_acceleration_limits: false
+      max_acceleration: 0.0
+      has_jerk_limits: true
+      max_jerk: 0.1
+      has_effort_limits: true
+      max_effort: 1
+      min_effort: -1.0
+    joint_3:
+      has_position_limits: true
+      min_position: -1.308997
+      max_position: 2.356194
+      has_velocity_limits: true
+      max_velocity: 3.143 #PI/sec
+      has_acceleration_limits: false
+      max_acceleration: 0.0
+      has_jerk_limits: true
+      max_jerk: 0.1
+      has_effort_limits: true
+      max_effort: 1
+      min_effort: -1.0
+
+    joint_4:
+      has_position_limits: true
+      min_position: -2.443461
+      max_position: 2.443461
+      has_velocity_limits: true
+      max_velocity: 3.143 #PI/sec
+      has_acceleration_limits: false
+      max_acceleration: 0.0
+      has_jerk_limits: true
+      max_jerk: 0.1
+      has_effort_limits: true
+      max_effort: 1
+      min_effort: -1.0
+    joint_5:
+      has_position_limits: true
+      min_position: -1.570796
+      max_position: 1.832596
+      has_velocity_limits: true
+      max_velocity: 3.143 #PI/sec
+      has_acceleration_limits: false
+      max_acceleration: 0.0
+      has_jerk_limits: true
+      max_jerk: 0.1
+      has_effort_limits: true
+      max_effort: 1
+      min_effort: -1.0
+    joint_6:
+      has_position_limits: true
+      min_position: -2.443461
+      max_position: 2.443461
+      has_velocity_limits: true
+      max_velocity: 3.143 #PI/sec
+      has_acceleration_limits: false
+      max_acceleration: 0.0
+      has_jerk_limits: true
+      max_jerk: 0.1
+      has_effort_limits: true
+      max_effort: 1
+      min_effort: -1.0
+    joint_7:
+      has_position_limits: true
+      min_position: -0.63633
+      max_position: 0.43633
+      has_velocity_limits: true
+      max_velocity: 3.143 #PI/sec
+      has_acceleration_limits: false
+      max_acceleration: 0.0
+      has_jerk_limits: true
+      max_jerk: 0.1
+      has_effort_limits: true
+      max_effort: 1
+      min_effort: -1.0
+
