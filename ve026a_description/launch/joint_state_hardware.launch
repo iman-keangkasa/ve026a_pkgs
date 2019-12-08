@@ -1,5 +1,5 @@
 <launch>
-  <param name="robot_description" textfile="$(find ve026a_description)/ve026a_iman2.urdf"/>
+  <param name="robot_description" textfile="$(find ve026a_description)/urdf/ve026a_iman2.urdf"/>
   
   <rosparam command="load" file="$(find ve026a_driver)/config/joints_zeros.yaml" />
   <node name="ve026a_states_publisher" pkg="ve026a_driver" type="ve026a_states_publisher" output="screen"/>

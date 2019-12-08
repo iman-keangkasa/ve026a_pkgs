@@ -1,5 +1,5 @@
 <launch>
-  <param name="robot_description" textfile="$(find ve026a_description)/urdf/ve026a_iman2.urdf"/>
+  <param name="robot_description" textfile="$(find ve026a_description)/urdf/ve026a_iman3.urdf"/>
 
   <!--To make sure that the robot does not jump from its initial position before
        startup and during start up load the joints_zeros.yaml which contains 

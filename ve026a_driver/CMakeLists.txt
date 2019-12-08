@@ -142,7 +142,8 @@ add_executable(connection_test_node src/connection_test_node.cpp)
 add_executable(simple_driver_node src/simple_driver_node.cpp)
 add_executable(ve026a_safe_startup_node src/ve026a_safe_startup.cpp)
 add_executable(ve026a_states_publisher src/ve026a_states_publisher)
-
+add_executable(ve026a_initial_position_node src/ve026a_initial_position.cpp)
+add_executable(ve026a_moveit_simulation_node src/ve026a_moveit_simulation.cpp)
 ## Iman: Delete this when I am going to implement robotHW interface
 ##add_executable(simple_driver_node_iman src/simple_driver_node_iman.cpp)
 
@@ -158,6 +159,11 @@ add_dependencies(connection_test_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 add_dependencies(simple_driver_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(ve026a_safe_startup_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(ve026a_states_publisher ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_dependencies(ve026a_initial_position_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+add_dependencies(ve026a_moveit_simulation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 
 #Iman: delete this codes when I implement robotHW
 ##add_dependencies(simple_driver_node_iman ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
@@ -185,23 +191,17 @@ target_link_libraries(ve026a_states_publisher
   ${Boost_LIBRARIES}
   ${PROJECT_NAME}
 )
-#############
-## Install ##
-#############
 
-# all install targets should use catkin DESTINATION variables
-# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
+target_link_libraries(ve026a_initial_position_node
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${PROJECT_NAME}
+)
 
-## Mark executable scripts (Python etc.) for installation
-## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
-
-## Mark executables for installation
-## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-# install(TARGETS ${PROJECT_NAME}_node
+target_link_libraries(ve026a_moveit_simulation_node
+  ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${PROJECT_NAME}
 #   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 # )
 
