@@ -35,15 +35,12 @@ namespace ve026a_hardware_interface
           ROS_INFO("Port is not set");
           abort();
         }
-        if(port != "")
+        
+        if(baud != 115200)
         {
-          baud_ = baud;
-        }
-        else
-        { 
-          ROS_INFO("Setting Baudrate to 115200");
           baud_ = 115200;
         }
+        
 
         ROS_INFO_NAMED("hardware_interface", "Loaded generic_hardware_interface.");
     }
