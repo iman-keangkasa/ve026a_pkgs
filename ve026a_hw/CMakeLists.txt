@@ -7,6 +7,11 @@ add_compile_options(-std=c++11)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(Boost REQUIRED COMPONENTS 
+  system
+  thread
+)
+
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   control_msgs
@@ -131,6 +136,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+include_directories(SYSTEM ${Boost_INCLUDE_DIR})
+
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/ve026a_hw.cpp
@@ -206,7 +213,10 @@ install(DIRECTORY include/${PROJECT_NAME}/
 #############
 ## Testing ##
 #############
-add_library(ve026a_hw src/ve026a_hw.cpp)
+add_library(ve026a_hw 
+   include/${PROJECT_NAME}/ve026a_hardware.h
+   include/${PROJECT_NAME}/ve026a_hardware_interface.h
+  src/ve026a_hardware_interface.cpp)
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_ve026a_hw.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
