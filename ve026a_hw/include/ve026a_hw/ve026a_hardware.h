@@ -9,7 +9,7 @@
 #include <joint_limits_interface/joint_limits_rosparam.h>
 #include <joint_limits_interface/joint_limits_urdf.h>
 #include <controller_manager/controller_manager.h>
-#include <boost/scoped_ptr.hpp>
+//#include <boost/smart_ptr.hpp>
 #include <ros/ros.h>
 
 namespace ve026a_hardware_interface

@@ -3,7 +3,8 @@
 #include <joint_limits_interface/joint_limits_rosparam.h>
 #include <ve026a_hw/ve026a_hardware_interface.h>
 #include <bcap/bcap_serial.h>
-
+#include <boost/smart_ptr.hpp>
+#include <boost/thread.hpp>
 #define RAD2DEG(x) ( (x)*180./M_PI)
 #define DEG2RAD(x) ( (x)/180./M_PI)
 
@@ -19,28 +20,14 @@ namespace ve026a_hardware_interface
   ve026a_HardwareInterface::ve026a_HardwareInterface(ros::NodeHandle& nh, unsigned int baud, std::string port) \
     : nh_(nh)
     {
+        port_ = port;
+        baud_ = baud;
         init();
         controller_manager_.reset(new controller_manager::ControllerManager(this, nh_));
         nh_.param("/ve026a/hardware_interface/loop_hz", loop_hz_, 0.1);
         ROS_DEBUG_STREAM_NAMED("contructor", "Using loop frequency of "<< loop_hz_ << " hz");
         ros::Duration update_freq = ros::Duration(1.0/loop_hz_);
-        non_realtime_loop_ = nh_.createTimer(update_freq, &ve026a_HardwareInterface::update, this);
-        //[IMAN]initialize baud and port. Find where I can put this into rosparam
-        if(port != "")
-        {
-        port_ = port;
-        }
-        else
-        { 
-          ROS_INFO("Port is not set");
-          abort();
-        }
-        
-        if(baud != 115200)
-        {
-          baud_ = 115200;
-        }
-        
+        non_realtime_loop_ = nh_.createTimer(update_freq, &ve026a_HardwareInterface::update, this);        
 
         ROS_INFO_NAMED("hardware_interface", "Loaded generic_hardware_interface.");
     }
@@ -64,23 +51,7 @@ namespace ve026a_hardware_interface
       joint_position_command_.resize(num_joints_);
       joint_velocity_command_.resize(num_joints_);
       joint_effort_command_.resize(num_joints_);
-    
-    //prepares bcap
-      turnOnMotor(true);
-      bcap_ = boost::shared_ptr<BCapSerial>(new BCapSerial(port_, baud_));
-    //start bcaps, get controller handle, get robot handle, get joint handle
-      BCAP_HRESULT hr;
-      int mode = 258;
-      long result = 0;
-      hr = bcap_->RobotExecute2(h_robot_, "slvChangeMode", VT_I4, 1, &mode, &result);
-      hr = bcap_->RobotGetVariable(h_robot_, "@CURRENT_ANGLE", "", &h_joint_angle_variable_);
-      abort_m(hr);
 
-      //initialize current position
-      //to joint command so that robot
-      //will not jump to arbitrary position
-
-      init_position();
       for (int i = 0; i < num_joints_; ++i)
       {
       //create joint_state_interface
@@ -105,8 +76,23 @@ namespace ve026a_hardware_interface
       registerInterface(&position_joint_interface_);
       registerInterface(&velocity_joint_interface_);
       registerInterface(&effort_joint_interface_);
-      read(); //setting initial position
+      //setting initial position
       //init_position();
+      //turnOnMotor(true);
+    
+    //prepares bcap
+      bcap_ = boost::shared_ptr<BCapSerial>(new BCapSerial(port_, baud_));
+    //start bcaps, get controller handle, get robot handle, get joint handle
+      BCAP_HRESULT hr;
+      int mode = 258;
+      long result = 0;
+      
+      turnOnMotor(false);
+      //std::cout<<"Turning motor success"<<std::endl;
+      hr = bcap_->RobotExecute2(h_robot_, "slvChangeMode", VT_I4, 1, &mode, &result);
+      hr = bcap_->RobotGetVariable(h_robot_, "@CURRENT_ANGLE", "", &h_joint_angle_variable_);
+      abort_m(hr);
+      init_position();
     }
 
     void ve026a_HardwareInterface::update(const ros::TimerEvent& e)
@@ -146,7 +132,7 @@ namespace ve026a_hardware_interface
     {
     if (joint_angle.size() != num_joints_) joint_angle.resize(num_joints_); 
     //if (joint_angle.size() != 8) joint_angle.resize(8); 
-    //boost::unique_lock<boost::mutex> lock(G_control_mutex);
+      boost::unique_lock<boost::mutex> lock(G_control_mutex_);
       BCAP_HRESULT hr;
       hr = bcap_->VariableGetValue(h_joint_angle_variable_, joint_angle.data());
       abort_m(hr);
@@ -159,7 +145,7 @@ namespace ve026a_hardware_interface
       {
         ROS_INFO("BCAP_HRESULT %x\n", hr);
         cout << "abort!" << endl;
-      //shutdown();
+        //shutdown();
         abort();
       }
     }
@@ -202,6 +188,7 @@ namespace ve026a_hardware_interface
     {
       read();
       joint_position_ = joint_position_command_;
+      turnOnMotor(true);
       write();
 
     }

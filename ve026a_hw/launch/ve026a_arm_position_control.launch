@@ -1,0 +1,9 @@
+<launch>
+  <rosparam file="$(find ve026a_hw)/config/hardware.yaml" command="load"/>
+  <rosparam file="$(find ve026a_hw)/config/controllers.yaml" command="load"/>
+  <rosparam file="$(find ve026a_hw)/config/joint_limits.yaml" command="load"/>
+  <node name="ve026a_hardware_interface_node" pkg="ve026a_hw" type="ve026a_hardware_interface_node"/>
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/" args="/ve026a/controller/state 
+                  /ve026a/controller/trajectory/arm_position_controller"/>
+</launch>
+
