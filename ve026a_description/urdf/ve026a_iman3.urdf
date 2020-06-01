@@ -199,7 +199,7 @@
 	<joint name="joint_5" type="revolute">
 		<parent link="J4"/>
 		<child link="J5"/>
-		<origin rpy="0.000000 0.000000 0.000000" xyz="0.000000 0.000000 0.090000"/>
+		<origin rpy="0.000000 0.000000 0.000000" xyz="0.000000 0.000000 0.070000"/>
 		<axis xyz="-0.000000 1.000000 -0.000000"/>
 		<limit effort="1" lower="-1.570796" upper="1.832596" velocity="1"/>
 		<dynamics damping="0" friction="0"/>
